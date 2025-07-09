@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to HTML Converter</title>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif; /* Using Inter font */
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top for better content flow */
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px; /* More rounded corners */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Stronger shadow */
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #c0c0c0;
+            border-radius: 8px; /* Rounded corners */
+            box-sizing: border-box;
+            min-height: 250px; /* Taller textarea */
+            font-family: monospace;
+            font-size: 15px;
+            resize: vertical; /* Allow vertical resizing */
+            transition: border-color 0.3s ease;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px; /* Rounded corners */
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        #htmlOutput {
+            background-color: #eef2f7; /* Lighter background for output */
+            padding: 15px;
+            border-radius: 8px; /* Rounded corners */
+            margin-top: 25px;
+            white-space: pre-wrap; /* Preserve whitespace and wrap long lines */
+            word-wrap: break-word; /* Break long words */
+            font-family: monospace; /* Revert to monospace for raw HTML display */
+            font-size: 14px; /* Slightly smaller font for raw HTML */
+            border: 1px dashed #a0a0a0; /* Dashed border */
+            min-height: 100px; /* Ensure it's visible even when empty */
+        }
+        .controls {
+            display: flex;
+            justify-content: center; /* Center buttons */
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 15px; /* Space between buttons */
+        }
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #28a745; /* Green for success messages */
+            text-align: center;
+            min-height: 20px; /* Reserve space for message */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            textarea {
+                min-height: 180px;
+            }
+            button {
+                width: 100%; /* Full width buttons on small screens */
+                margin-right: 0;
+            }
+            .controls {
+                flex-direction: column; /* Stack buttons vertically */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Markdown to HTML Converter</h1>
+
+        <div>
+            <label for="markdownInput">Введите Markdown текст здесь:</label>
+            <textarea id="markdownInput" placeholder="[БАНЕР](https://form.jotform.com/251420957722154)&#10;&#10;Вы&nbsp;записаны на&nbsp;онлайн-курс [&quot;Как решать задачи с&nbsp;нейросетями&quot;](https://www.profileschool.ru/category/ai/course_tasks_with_neural_networks)..."></textarea>
+        </div>
+
+        <div class="controls">
+            <button onclick="convertAndDisplay()">Преобразовать в HTML</button>
+            <button onclick="copyToClipboard()">Копировать HTML</button>
+        </div>
+
+        <div class="message" id="copyMessage"></div>
+
+        <div>
+            <h2>Результат (HTML):</h2>
+            <div id="htmlOutput"></div>
+        </div>
+    </div>
+
+    <script>
+        // Function to convert Markdown to HTML
+        function convertMarkdownToHtml(markdownText) {
+            let outputBlocks = []; // Array to store processed HTML blocks
+            const lines = markdownText.split('\n'); // Split input into lines
+            let currentBlockLines = []; // Stores lines for the current logical block
+
+            // Helper function to process a collected block of lines
+            const processBlock = (blockLines) => {
+                if (blockLines.length === 0) return; // Skip empty blocks
+
+                const blockContent = blockLines.join('\n'); // Join lines to form block content
+                let processedBlockHtml = blockContent; // Default: content itself
+
+                // --- Special Handling for specific full-line patterns ---
+                // 1. Special Link at start of line: [TEXT](URL) -> ###[**TEXT**](URL)
+                const specialLinkRegex = /^\[(.*?)\]\((.*?)\)$/;
+                if (blockLines.length === 1 && specialLinkRegex.test(blockContent.trim())) {
+                    const match = blockContent.trim().match(specialLinkRegex);
+                    processedBlockHtml = `###[**${match[1]}**](${match[2]})`;
+                    outputBlocks.push(processedBlockHtml);
+                    return; // Block fully processed, move to next
+                }
+
+                // 2. Special Emoji Bold Header: EMOJI **TEXT** -> ### EMOJI **TEXT**
+                // This regex matches a line that starts with a non-whitespace character (for emoji),
+                // followed by optional whitespace, then **bold text**.
+                const specialEmojiBoldHeaderRegex = /^(\S+)\s*\*\*(.*?)\*\*$/;
+                if (blockLines.length === 1 && specialEmojiBoldHeaderRegex.test(blockContent.trim())) {
+                    const match = blockContent.trim().match(specialEmojiBoldHeaderRegex);
+                    processedBlockHtml = `### ${match[1]} **${match[2]}**`;
+                    outputBlocks.push(processedBlockHtml);
+                    return; // Block fully processed
+                }
+
+                // 3. Special Plain Bold Header at start of line: **TEXT** -> ###**TEXT**
+                const specialPlainBoldHeaderRegex = /^\*\*(.*?)\*\*$/;
+                if (blockLines.length === 1 && specialPlainBoldHeaderRegex.test(blockContent.trim())) {
+                    const match = blockContent.trim().match(specialPlainBoldHeaderRegex);
+                    processedBlockHtml = `###**${match[1]}**`;
+                    outputBlocks.push(processedBlockHtml);
+                    return; // Block fully processed
+                }
+
+                // --- Standard Markdown Conversions within the block ---
+                // Apply bold and general link conversions first, as they can be inside other elements
+                processedBlockHtml = processedBlockHtml.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); // Convert bold
+                processedBlockHtml = processedBlockHtml.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>'); // Convert general links
+
+                // --- Block Type Detection and Conversion ---
+
+                // Headers (### and ####)
+                if (processedBlockHtml.startsWith('<h3>')) { // Already converted by regex above
+                    outputBlocks.push(processedBlockHtml);
+                    return;
+                }
+                if (processedBlockHtml.startsWith('<h4>')) { // Already converted by regex above
+                    outputBlocks.push(processedBlockHtml);
+                    return;
+                }
+
+                // Unordered Lists (marked with &mdash; or -)
+                const unorderedListLineRegex = /^(?:&mdash;|&nbsp;-|-)\s/;
+                if (blockLines.some(line => unorderedListLineRegex.test(line.trim()))) {
+                    let listItemsHtml = blockLines.map(line => {
+                        let itemContent = line.replace(unorderedListLineRegex, ''); // Remove marker
+                        // Apply bold/link conversions again in case they were missed or new ones appeared
+                        itemContent = itemContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                        itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
+                        return `<li style="margin:0">${itemContent}</li>`;
+                    });
+                    // Join the first item directly with the <ul> tag, then add newlines for subsequent items
+                    let finalUlContent = '';
+                    if (listItemsHtml.length > 0) {
+                        finalUlContent = `<ul style="margin:0">${listItemsHtml[0]}`;
+                        if (listItemsHtml.length > 1) {
+                            finalUlContent += '\n' + listItemsHtml.slice(1).join('\n');
+                        }
+                        finalUlContent += '</ul>'; // Closing </ul> on the same line as the last <li>
+                    } else {
+                        finalUlContent = `<ul style="margin:0"></ul>`; // Handle empty list gracefully
+                    }
+                    outputBlocks.push(finalUlContent);
+                    return;
+                }
+
+                // Ordered Lists (marked with 1., 2., etc.)
+                const orderedListLineRegex = /^\d+\.\s/;
+                if (blockLines.some(line => orderedListLineRegex.test(line.trim()))) {
+                    let listItemsHtml = blockLines.map(line => {
+                        let itemContent = line.replace(orderedListLineRegex, ''); // Remove marker
+                        // Apply bold/link conversions again
+                        itemContent = itemContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                        itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
+                        return `<li style="margin:0">${itemContent}</li>`;
+                    });
+                    // Join the first item directly with the <ol> tag, then add newlines for subsequent items
+                    let finalOlContent = '';
+                    if (listItemsHtml.length > 0) {
+                        finalOlContent = `<ol style="margin:0">${listItemsHtml[0]}`;
+                        if (listItemsHtml.length > 1) {
+                            finalOlContent += '\n' + listItemsHtml.slice(1).join('\n');
+                        }
+                        finalOlContent += '</ol>'; // Closing </ol> on the same line as the last <li>
+                    } else {
+                        finalOlContent = `<ol style="margin:0"></ol>`; // Handle empty list gracefully
+                    }
+                    outputBlocks.push(finalOlContent);
+                    return;
+                }
+
+                // If none of the above, it's a regular paragraph
+                // Convert internal newlines to <br> for paragraphs
+                const paragraphContent = processedBlockHtml.replace(/\n/g, '<br>');
+                outputBlocks.push(`<div>${paragraphContent}</div>`);
+            };
+
+            // Iterate through lines to build blocks
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                // If an empty line is encountered, and there's content in currentBlockLines, process it
+                if (line.trim() === '') {
+                    if (currentBlockLines.length > 0) {
+                        processBlock(currentBlockLines);
+                        currentBlockLines = []; // Reset for the next block
+                    }
+                } else {
+                    currentBlockLines.push(line); // Add line to current block
+                }
+            }
+
+            // Process any remaining lines after the loop (for the last block)
+            if (currentBlockLines.length > 0) {
+                processBlock(currentBlockLines);
+            }
+
+            let finalHtml = outputBlocks.join('\n'); // Join all processed blocks with single newlines
+
+            // --- Final Formatting and Cleanup ---
+
+            // Special handling for "&quot;" to replace with Russian quotation marks
+            finalHtml = finalHtml.replace(/&quot;/g, '&laquo;');
+
+            // Trim leading/trailing whitespace including newlines
+            finalHtml = finalHtml.trim();
+
+            return finalHtml;
+        }
+
+        // Function to get Markdown input, convert it, and display the HTML output
+        function convertAndDisplay() {
+            const markdownInput = document.getElementById('markdownInput').value;
+            const htmlOutputElement = document.getElementById('htmlOutput');
+            const convertedHtml = convertMarkdownToHtml(markdownInput);
+            // Use textContent to display the raw HTML string, making it visually readable
+            htmlOutputElement.textContent = convertedHtml;
+            // Clear any previous copy message
+            document.getElementById('copyMessage').textContent = '';
+        }
+
+        // Function to copy the displayed HTML to the clipboard
+        function copyToClipboard() {
+            const htmlOutputElement = document.getElementById('htmlOutput');
+            // When copying, we still want the raw HTML string, not the rendered text
+            const textToCopy = htmlOutputElement.textContent;
+
+            // Use the modern Clipboard API if available
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const messageElement = document.getElementById('copyMessage');
+                    messageElement.textContent = 'HTML скопирован!'; // Success message
+                    // Clear the message after 2 seconds
+                    setTimeout(() => messageElement.textContent = '', 2000);
+                }).catch(err => {
+                    // Log error to console if copying fails
+                    console.error('Не удалось скопировать HTML: ', err);
+                    const messageElement = document.getElementById('copyMessage');
+                    messageElement.textContent = 'Ошибка при копировании. Пожалуйста, скопируйте вручную.';
+                    messageElement.style.color = 'red';
+                    setTimeout(() => { messageElement.textContent = ''; messageElement.style.color = '#28a745'; }, 3000);
+                });
+            } else {
+                // Fallback method for older browsers (using document.execCommand)
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = textToCopy;
+                // Append to body temporarily to make it selectable
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select(); // Select the text
+                document.execCommand('copy'); // Execute copy command
+                document.body.removeChild(tempTextArea); // Remove the temporary textarea
+
+                const messageElement = document.getElementById('copyMessage');
+                messageElement.textContent = 'HTML скопирован (резервный метод)!'; // Success message for fallback
+                setTimeout(() => messageElement.textContent = '', 2000);
+            }
+        }
+    </script>
+</body>
+</html>
