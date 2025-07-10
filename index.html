@@ -117,11 +117,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>Markdown to HTML Converter</h1>
+        <h1>Конвертер Markdown в HTML</h1>
 
         <div>
             <label for="markdownInput">Введите Markdown текст здесь:</label>
-            <textarea id="markdownInput" placeholder="[БАНЕР](https://form.jotform.com/251420957722154)&#10;&#10;Вы&nbsp;записаны на&nbsp;онлайн-курс [&quot;Как решать задачи с&nbsp;нейросетями&quot;](https://www.profileschool.ru/category/ai/course_tasks_with_neural_networks)..."></textarea>
+            <textarea id="markdownInput"></textarea>
         </div>
 
         <div class="controls">
@@ -306,15 +306,29 @@
             return finalHtml;
         }
 
-        // Function to get Markdown input, convert it, and display the HTML output
+        // Function to handle conversion without Typograf service call
         function convertAndDisplay() {
             const markdownInput = document.getElementById('markdownInput').value;
             const htmlOutputElement = document.getElementById('htmlOutput');
-            const convertedHtml = convertMarkdownToHtml(markdownInput);
-            // Use textContent to display the raw HTML string, making it visually readable
-            htmlOutputElement.textContent = convertedHtml;
-            // Clear any previous copy message
-            document.getElementById('copyMessage').textContent = '';
+            const copyMessageElement = document.getElementById('copyMessage');
+            copyMessageElement.textContent = 'Обработка...'; // Loading indicator
+            copyMessageElement.style.color = '#007bff'; // Blue for loading
+
+            try {
+                // Directly process the Markdown text with the existing converter
+                const convertedHtml = convertMarkdownToHtml(markdownInput);
+                htmlOutputElement.textContent = convertedHtml;
+                copyMessageElement.textContent = 'Готово!'; // Clear loading message
+                copyMessageElement.style.color = '#28a745'; // Green for success
+                setTimeout(() => { copyMessageElement.textContent = ''; copyMessageElement.style.color = '#28a745'; }, 2000);
+
+            } catch (error) {
+                console.error('Ошибка при преобразовании:', error);
+                copyMessageElement.textContent = 'Ошибка преобразования.';
+                copyMessageElement.style.color = 'red';
+                htmlOutputElement.textContent = 'Ошибка преобразования.';
+                setTimeout(() => { copyMessageElement.textContent = ''; copyMessageElement.style.color = '#28a745'; }, 5000);
+            }
         }
 
         // Function to copy the displayed HTML to the clipboard
@@ -328,6 +342,7 @@
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     const messageElement = document.getElementById('copyMessage');
                     messageElement.textContent = 'HTML скопирован!'; // Success message
+                    messageElement.style.color = '#28a745';
                     // Clear the message after 2 seconds
                     setTimeout(() => messageElement.textContent = '', 2000);
                 }).catch(err => {
@@ -350,6 +365,7 @@
 
                 const messageElement = document.getElementById('copyMessage');
                 messageElement.textContent = 'HTML скопирован (резервный метод)!'; // Success message for fallback
+                messageElement.style.color = '#28a745';
                 setTimeout(() => messageElement.textContent = '', 2000);
             }
         }
