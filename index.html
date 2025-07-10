@@ -221,17 +221,8 @@
                         itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
                         return `<li style="margin:0">${itemContent}</li>`;
                     });
-                    // Join the first item directly with the <ul> tag, then add newlines for subsequent items
-                    let finalUlContent = '';
-                    if (listItemsHtml.length > 0) {
-                        finalUlContent = `<ul style="margin:0">${listItemsHtml[0]}`;
-                        if (listItemsHtml.length > 1) {
-                            finalUlContent += '\n' + listItemsHtml.slice(1).join('\n');
-                        }
-                        finalUlContent += '</ul>'; // Closing </ul> on the same line as the last <li>
-                    } else {
-                        finalUlContent = `<ul style="margin:0"></ul>`; // Handle empty list gracefully
-                    }
+                    // Join all list items without newlines between them, then add the closing </ul>
+                    let finalUlContent = `<ul style="margin:0">${listItemsHtml.join('')}</ul>`;
                     outputBlocks.push(finalUlContent);
                     return;
                 }
@@ -246,17 +237,8 @@
                         itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
                         return `<li style="margin:0">${itemContent}</li>`;
                     });
-                    // Join the first item directly with the <ol> tag, then add newlines for subsequent items
-                    let finalOlContent = '';
-                    if (listItemsHtml.length > 0) {
-                        finalOlContent = `<ol style="margin:0">${listItemsHtml[0]}`;
-                        if (listItemsHtml.length > 1) {
-                            finalOlContent += '\n' + listItemsHtml.slice(1).join('\n');
-                        }
-                        finalOlContent += '</ol>'; // Closing </ol> on the same line as the last <li>
-                    } else {
-                        finalOlContent = `<ol style="margin:0"></ol>`; // Handle empty list gracefully
-                    }
+                    // Join all list items without newlines between them, then add the closing </ol>
+                    let finalOlContent = `<ol style="margin:0">${listItemsHtml.join('')}</ol>`;
                     outputBlocks.push(finalOlContent);
                     return;
                 }
