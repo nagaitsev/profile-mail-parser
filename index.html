@@ -121,7 +121,7 @@
 
         <div>
             <label for="markdownInput">Введите Markdown текст здесь:</label>
-            <textarea id="markdownInput" placeholder="Маркдаун текст кидать сюда :)"></textarea>
+            <textarea id="markdownInput" placeholder="[БАНЕР](https://form.jotform.com/251420957722154)&#10;&#10;Вы&nbsp;записаны на&nbsp;онлайн-курс [&quot;Как решать задачи с&nbsp;нейросетями&quot;](https://www.profileschool.ru/category/ai/course_tasks_with_neural_networks)..."></textarea>
         </div>
 
         <div class="controls">
@@ -144,6 +144,20 @@
             const lines = markdownText.split('\n'); // Split input into lines
             let currentBlockLines = []; // Stores lines for the current logical block
 
+            // Determine if the very last non-empty line is a plain Markdown link
+            let shouldAddBrBrAtEnd = false;
+            const plainMarkdownLinkRegex = /^\[(.*?)\]\((.*?)\)$/;
+            for (let i = lines.length - 1; i >= 0; i--) {
+                const trimmedLine = lines[i].trim();
+                if (trimmedLine !== '') {
+                    if (plainMarkdownLinkRegex.test(trimmedLine)) {
+                        shouldAddBrBrAtEnd = true;
+                    }
+                    break; // Found the last non-empty line, stop searching
+                }
+            }
+
+
             // Helper function to process a collected block of lines
             const processBlock = (blockLines) => {
                 if (blockLines.length === 0) return; // Skip empty blocks
@@ -162,8 +176,6 @@
                 }
 
                 // 2. Special Emoji Bold Header: EMOJI **TEXT** -> ### EMOJI **TEXT**
-                // This regex matches a line that starts with a non-whitespace character (for emoji),
-                // followed by optional whitespace, then **bold text**.
                 const specialEmojiBoldHeaderRegex = /^(\S+)\s*\*\*(.*?)\*\*$/;
                 if (blockLines.length === 1 && specialEmojiBoldHeaderRegex.test(blockContent.trim())) {
                     const match = blockContent.trim().match(specialEmojiBoldHeaderRegex);
@@ -198,8 +210,9 @@
                     return;
                 }
 
-                // Unordered Lists (marked with &mdash; or -)
-                const unorderedListLineRegex = /^(?:&mdash;|&nbsp;-|-)\s/;
+                // Unordered Lists (marked with &mdash;&nbsp;, -&nbsp;, or - )
+                // This regex now specifically targets the literal string "&mdash;&nbsp;" or "-&nbsp;" or "- "
+                const unorderedListLineRegex = /^(?:&mdash;&nbsp;|\-&nbsp;|\-\s)/;
                 if (blockLines.some(line => unorderedListLineRegex.test(line.trim()))) {
                     let listItemsHtml = blockLines.map(line => {
                         let itemContent = line.replace(unorderedListLineRegex, ''); // Remove marker
@@ -251,7 +264,9 @@
                 // If none of the above, it's a regular paragraph
                 // Convert internal newlines to <br> for paragraphs
                 const paragraphContent = processedBlockHtml.replace(/\n/g, '<br>');
-                outputBlocks.push(`<div>${paragraphContent}</div>`);
+                let finalParagraphHtml = `<div>${paragraphContent}</div>`;
+
+                outputBlocks.push(finalParagraphHtml);
             };
 
             // Iterate through lines to build blocks
@@ -274,6 +289,11 @@
             }
 
             let finalHtml = outputBlocks.join('\n'); // Join all processed blocks with single newlines
+
+            // Append <br><br> if the original last line was a plain Markdown link
+            if (shouldAddBrBrAtEnd) {
+                finalHtml += '<br><br>';
+            }
 
             // --- Final Formatting and Cleanup ---
 
