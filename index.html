@@ -195,6 +195,7 @@
 
                 // --- Standard Markdown Conversions within the block ---
                 // Apply bold and general link conversions first, as they can be inside other elements
+                processedBlockHtml = processedBlockHtml.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<i>$1</i>'); // Convert italic
                 processedBlockHtml = processedBlockHtml.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); // Convert bold
                 processedBlockHtml = processedBlockHtml.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>'); // Convert general links
 
@@ -217,6 +218,7 @@
                     let listItemsHtml = blockLines.map(line => {
                         let itemContent = line.replace(unorderedListLineRegex, ''); // Remove marker
                         // Apply bold/link conversions again in case they were missed or new ones appeared
+                        itemContent = itemContent.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<i>$1</i>'); // Convert italic
                         itemContent = itemContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                         itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
                         return `<li style="margin:0">${itemContent}</li>`;
@@ -233,6 +235,7 @@
                     let listItemsHtml = blockLines.map(line => {
                         let itemContent = line.replace(orderedListLineRegex, ''); // Remove marker
                         // Apply bold/link conversions again
+                        itemContent = itemContent.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<i>$1</i>'); // Convert italic
                         itemContent = itemContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                         itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
                         return `<li style="margin:0">${itemContent}</li>`;
@@ -240,6 +243,12 @@
                     // Join all list items without newlines between them, then add the closing </ol>
                     let finalOlContent = `<ol style="margin:0">${listItemsHtml.join('')}</ol>`;
                     outputBlocks.push(finalOlContent);
+                    return;
+                }
+
+                // NEW: Check for ### or #### headers and leave them as is
+                if (processedBlockHtml.trim().startsWith('###') || processedBlockHtml.trim().startsWith('####')) {
+                    outputBlocks.push(processedBlockHtml);
                     return;
                 }
 
