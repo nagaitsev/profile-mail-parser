@@ -129,6 +129,11 @@
             <button onclick="copyToClipboard()">Копировать HTML</button>
         </div>
 
+        <div style="text-align: center; margin-top: 15px;">
+            <input type="checkbox" id="useTypograf" name="useTypograf">
+            <label for="useTypograf">Использовать Типограф Лебедева</label>
+        </div>
+
         <div class="message" id="copyMessage"></div>
 
         <div>
@@ -138,6 +143,43 @@
     </div>
 
     <script>
+        const TYPOGRAF_WORKER_URL = 'https://profile-mail-parser.mishuta.workers.dev/'; // <-- ЗАМЕНИТЕ ЭТО НА ВАШ URL
+
+        // Function to call the Typograf worker
+        async function typografText(text) {
+            const copyMessageElement = document.getElementById('copyMessage');
+            if (!TYPOGRAF_WORKER_URL.includes('your-worker-url')) {
+                try {
+                    copyMessageElement.textContent = 'Обращаемся к Типографу...';
+                    copyMessageElement.style.color = '#007bff';
+
+                    const response = await fetch(TYPOGRAF_WORKER_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: text })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok, status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    return data.processedText;
+
+                } catch (error) {
+                    console.error('Ошибка при обращении к Типографу:', error);
+                    copyMessageElement.textContent = 'Ошибка Типографа. Обработка без него.';
+                    copyMessageElement.style.color = 'red';
+                    // Return original text if the service fails
+                    return text;
+                }
+            } else {
+                copyMessageElement.textContent = 'URL Типографа не настроен. Обработка без него.';
+                copyMessageElement.style.color = 'orange';
+                return text; // Return original text if URL is not set
+            }
+        }
+
         // Function to convert Markdown to HTML
         function convertMarkdownToHtml(markdownText) {
             let outputBlocks = []; // Array to store processed HTML blocks
@@ -297,28 +339,42 @@
             return finalHtml;
         }
 
-        // Function to handle conversion without Typograf service call
-        function convertAndDisplay() {
+        // Async function to handle conversion, now with Typograf option
+        async function convertAndDisplay() {
             const markdownInput = document.getElementById('markdownInput').value;
+            const useTypograf = document.getElementById('useTypograf').checked;
             const htmlOutputElement = document.getElementById('htmlOutput');
             const copyMessageElement = document.getElementById('copyMessage');
-            copyMessageElement.textContent = 'Обработка...'; // Loading indicator
-            copyMessageElement.style.color = '#007bff'; // Blue for loading
+
+            copyMessageElement.textContent = 'Обработка...';
+            copyMessageElement.style.color = '#007bff';
 
             try {
-                // Directly process the Markdown text with the existing converter
-                const convertedHtml = convertMarkdownToHtml(markdownInput);
+                let textToProcess = markdownInput;
+
+                // If the checkbox is checked, process the text with Typograf first
+                if (useTypograf) {
+                    textToProcess = await typografText(markdownInput);
+                }
+
+                // Process the (potentially typografed) text with the local converter
+                const convertedHtml = convertMarkdownToHtml(textToProcess);
                 htmlOutputElement.textContent = convertedHtml;
-                copyMessageElement.textContent = 'Готово!'; // Clear loading message
-                copyMessageElement.style.color = '#28a745'; // Green for success
-                setTimeout(() => { copyMessageElement.textContent = ''; copyMessageElement.style.color = '#28a745'; }, 2000);
+
+                // Update status message only if it wasn't changed by the typograf function already
+                if (!copyMessageElement.textContent.includes('Ошибка')) {
+                    copyMessageElement.textContent = 'Готово!';
+                    copyMessageElement.style.color = '#28a745';
+                }
+
+                setTimeout(() => { copyMessageElement.textContent = ''; }, 3000);
 
             } catch (error) {
                 console.error('Ошибка при преобразовании:', error);
+                htmlOutputElement.textContent = 'Произошла ошибка во время преобразования.';
                 copyMessageElement.textContent = 'Ошибка преобразования.';
                 copyMessageElement.style.color = 'red';
-                htmlOutputElement.textContent = 'Ошибка преобразования.';
-                setTimeout(() => { copyMessageElement.textContent = ''; copyMessageElement.style.color = '#28a745'; }, 5000);
+                setTimeout(() => { copyMessageElement.textContent = ''; }, 5000);
             }
         }
 
