@@ -9,16 +9,16 @@ addEventListener('fetch', event => {
 async function handleRequest(request) {
   console.log('Received request:', request.method, request.url);
 
-  // Set CORS headers
-  const headers = new Headers({
-    'Access-Control-Allow-Origin': 'https://nagaitsev.github.io', // Specific domain for CORS
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  });
-
   // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
-    return new Response(null, { headers });
+    return new Response(null, {
+      headers: {
+        'Access-Control-Allow-Origin': 'https://nagaitsev.github.io',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Max-Age': '86400', // Cache preflight for 24 hours
+      },
+    });
   }
 
   // Ensure it's a POST request
@@ -80,15 +80,25 @@ async function handleRequest(request) {
     console.log('Processed text from Typograf:', processedText.substring(0, 200)); // Log first 200 chars
 
     // Send the processed text back to the client
-    return new Response(JSON.stringify({ processedText }), {
+    const response = new Response(JSON.stringify({ processedText }), {
       headers: {
-        ...headers,
         'Content-Type': 'application/json',
       }
     });
 
+    // Explicitly set CORS headers on the response object
+    response.headers.set('Access-Control-Allow-Origin', 'https://nagaitsev.github.io');
+    response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    return response;
+
   } catch (error) {
     console.error('Error in Worker:', error.message);
-    return new Response(error.message, { status: 500, headers });
+    const errorResponse = new Response(error.message, { status: 500 });
+    errorResponse.headers.set('Access-Control-Allow-Origin', 'https://nagaitsev.github.io'); // Ensure CORS on error too
+    errorResponse.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    errorResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+    return errorResponse;
   }
 }
