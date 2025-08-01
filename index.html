@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown to HTML Converter</title>
-    <!-- BUILD_DATE -->
+    <!-- Build Date: 1 августа 2025 г. в 23:17:07 GMT+2 -->
     <style>
         body {
             font-family: 'Inter', Arial, sans-serif; /* Using Inter font */
@@ -30,6 +30,13 @@
         h1, h2 {
             color: #2c3e50;
             text-align: center;
+            margin-bottom: 20px;
+        }
+        #build-date {
+            text-align: center;
+            font-size: 0.8em; /* Smaller font */
+            color: #777; /* Gray color */
+            margin-top: -15px; /* Pull it closer to the h1 */
             margin-bottom: 20px;
         }
         textarea {
@@ -119,6 +126,7 @@
 <body>
     <div class="container">
         <h1>Конвертер Markdown в HTML</h1>
+        <p id="build-date"><!-- BUILD_DATE_PLACEHOLDER --></p>
 
         <div>
             <label for="markdownInput">Введите Markdown текст здесь:</label>
