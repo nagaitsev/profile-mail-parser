@@ -1,3 +1,3 @@
-name = "profile-mail-parser-worker"
+name = "profile-mail-parser"
 main = "worker.js"
 compatibility_date = "2025-08-01"

@@ -1,3 +1,4 @@
+// Worker Version: 2025-08-02-0035
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
