@@ -19,8 +19,8 @@ fs.readFile(indexPath, 'utf8', (err, data) => {
     }
 
     const updatedContent = data.replace(
-        /<!-- BUILD_DATE -->/,
-        `<!-- Build Date: ${buildDate} -->`
+        /<p id="build-date"><!-- BUILD_DATE_PLACEHOLDER --><\/p>/,
+        `<p id="build-date">${buildDate}</p>`
     );
 
     fs.writeFile(indexPath, updatedContent, 'utf8', (err) => {
