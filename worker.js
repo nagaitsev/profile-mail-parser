@@ -82,6 +82,10 @@ async function handleRequest(request) {
     processedText = processedText.replace(/&lt;/g, '<');
     processedText = processedText.replace(/&amp;/g, '&');
 
+    // Remove <p> and </p> tags
+    processedText = processedText.replace(/<p>/g, '');
+    processedText = processedText.replace(/<\/p>/g, '');
+
     console.log('Processed text from Typograf:', processedText.substring(0, 200)); // Log first 200 chars
 
     // Send the processed text back to the client
