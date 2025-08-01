@@ -182,57 +182,57 @@
 
         // Function to convert Markdown to HTML
         function convertMarkdownToHtml(markdownText) {
-            let outputBlocks = []; // Array to store processed HTML blocks
-            const lines = markdownText.split('\n'); // Split input into lines
-            let currentBlockLines = []; // Stores lines for the current logical block
+            let outputBlocks = [];
 
             // Determine if the very last non-empty line is a plain Markdown link
+            // This still needs to operate on original lines before block splitting
             let shouldAddBrBrAtEnd = false;
             const plainMarkdownLinkRegex = /^\[(.*?)\]\((.*?)\)$/;
-            for (let i = lines.length - 1; i >= 0; i--) {
-                const trimmedLine = lines[i].trim();
+            const originalLines = markdownText.split('\n');
+            for (let i = originalLines.length - 1; i >= 0; i--) {
+                const trimmedLine = originalLines[i].trim();
                 if (trimmedLine !== '') {
                     if (plainMarkdownLinkRegex.test(trimmedLine)) {
                         shouldAddBrBrAtEnd = true;
                     }
-                    break; // Found the last non-empty line, stop searching
+                    break;
                 }
             }
 
+            // Split input into logical blocks by double newlines
+            const blocks = markdownText.split('\n\n');
 
-            // Helper function to process a collected block of lines
-            const processBlock = (blockLines) => {
-                if (blockLines.length === 0) return; // Skip empty blocks
+            // Helper function to process a single block of content
+            const processSingleBlock = (blockContent) => {
+                if (blockContent.trim() === '') return null; // Skip empty blocks
 
-                const blockContent = blockLines.join('\n'); // Join lines to form block content
-                let processedBlockHtml = blockContent; // Default: content itself
+                let processedBlockHtml = blockContent;
 
-                // --- Special Handling for specific full-line patterns ---
+                // --- Special Handling for specific full-line patterns (these should be at the start of a block) ---
                 // 1. Special Link at start of line: [TEXT](URL) -> ###[**TEXT**](URL)
                 const specialLinkRegex = /^\[(.*?)\]\((.*?)\)$/;
-                if (blockLines.length === 1 && specialLinkRegex.test(blockContent.trim())) {
-                    const match = blockContent.trim().match(specialLinkRegex);
-                    processedBlockHtml = `###[**${match[1]}**](${match[2]})`;
-                    outputBlocks.push(processedBlockHtml);
-                    return; // Block fully processed, move to next
+                if (specialLinkRegex.test(processedBlockHtml.trim())) {
+                    const match = processedBlockHtml.trim().match(specialLinkRegex);
+                    return `###[**${match[1]}**](${match[2]})`;
                 }
 
                 // 2. Special Emoji Bold Header: EMOJI **TEXT** -> ### EMOJI **TEXT**
                 const specialEmojiBoldHeaderRegex = /^(\S+)\s*\*\*(.*?)\*\*$/;
-                if (blockLines.length === 1 && specialEmojiBoldHeaderRegex.test(blockContent.trim())) {
-                    const match = blockContent.trim().match(specialEmojiBoldHeaderRegex);
-                    processedBlockHtml = `### ${match[1]} **${match[2]}**`;
-                    outputBlocks.push(processedBlockHtml);
-                    return; // Block fully processed
+                if (specialEmojiBoldHeaderRegex.test(processedBlockHtml.trim())) {
+                    const match = processedBlockHtml.trim().match(specialEmojiBoldHeaderRegex);
+                    return `### ${match[1]} **${match[2]}**`;
                 }
 
                 // 3. Special Plain Bold Header at start of line: **TEXT** -> ###**TEXT**
                 const specialPlainBoldHeaderRegex = /^\*\*(.*?)\*\*$/;
-                if (blockLines.length === 1 && specialPlainBoldHeaderRegex.test(blockContent.trim())) {
-                    const match = blockContent.trim().match(specialPlainBoldHeaderRegex);
-                    processedBlockHtml = `###**${match[1]}**`;
-                    outputBlocks.push(processedBlockHtml);
-                    return; // Block fully processed
+                if (specialPlainBoldHeaderRegex.test(processedBlockHtml.trim())) {
+                    const match = processedBlockHtml.trim().match(specialPlainBoldHeaderRegex);
+                    return `###**${match[1]}**`;
+                }
+
+                // NEW: Check for ### or #### headers and leave them as is (moved up for clarity)
+                if (processedBlockHtml.trim().startsWith('###') || processedBlockHtml.trim().startsWith('####')) {
+                    return processedBlockHtml;
                 }
 
                 // --- Standard Markdown Conversions within the block ---
@@ -241,20 +241,11 @@
                 processedBlockHtml = processedBlockHtml.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); // Convert bold
                 processedBlockHtml = processedBlockHtml.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>'); // Convert general links
 
-                // --- Block Type Detection and Conversion ---
-
-                // Headers (### and ####)
-                if (processedBlockHtml.startsWith('<h3>')) { // Already converted by regex above
-                    outputBlocks.push(processedBlockHtml);
-                    return;
-                }
-                if (processedBlockHtml.startsWith('<h4>')) { // Already converted by regex above
-                    outputBlocks.push(processedBlockHtml);
-                    return;
-                }
+                // --- List Type Detection and Conversion ---
+                // For lists, we need to split by single newlines within the block
+                const blockLines = processedBlockHtml.split('\n');
 
                 // Unordered Lists (marked with &mdash;&nbsp;, -&nbsp;, or - )
-                // This regex now specifically targets the literal string "&mdash;&nbsp;" or "-&nbsp;" or "- "
                 const unorderedListLineRegex = /^(?:&mdash;&nbsp;|\-&nbsp;|\-\s)/;
                 if (blockLines.some(line => unorderedListLineRegex.test(line.trim()))) {
                     let listItemsHtml = blockLines.map(line => {
@@ -265,10 +256,7 @@
                         itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
                         return `<li style="margin:0">${itemContent}</li>`;
                     });
-                    // Join all list items without newlines between them, then add the closing </ul>
-                    let finalUlContent = `<ul style="margin:0">${listItemsHtml.join('')}</ul>`;
-                    outputBlocks.push(finalUlContent);
-                    return;
+                    return `<ul style="margin:0">${listItemsHtml.join('')}</ul>`;
                 }
 
                 // Ordered Lists (marked with 1., 2., etc.)
@@ -282,46 +270,25 @@
                         itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
                         return `<li style="margin:0">${itemContent}</li>`;
                     });
-                    // Join all list items without newlines between them, then add the closing </ol>
-                    let finalOlContent = `<ol style="margin:0">${listItemsHtml.join('')}</ol>`;
-                    outputBlocks.push(finalOlContent);
-                    return;
-                }
-
-                // NEW: Check for ### or #### headers and leave them as is
-                if (processedBlockHtml.trim().startsWith('###') || processedBlockHtml.trim().startsWith('####')) {
-                    outputBlocks.push(processedBlockHtml);
-                    return;
+                    return `<ol style="margin:0">${listItemsHtml.join('')}</ol>`;
                 }
 
                 // If none of the above, it's a regular paragraph
                 // Convert internal newlines to <br> for paragraphs
                 const paragraphContent = processedBlockHtml.replace(/\n/g, '<br>');
-                let finalParagraphHtml = `<div>${paragraphContent}</div>`;
-
-                outputBlocks.push(finalParagraphHtml);
+                return `<div>${paragraphContent}</div>`;
             };
 
-            // Iterate through lines to build blocks
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-                // If an empty line is encountered, and there's content in currentBlockLines, process it
-                if (line.trim() === '') {
-                    if (currentBlockLines.length > 0) {
-                        processBlock(currentBlockLines);
-                        currentBlockLines = []; // Reset for the next block
-                    }
-                } else {
-                    currentBlockLines.push(line); // Add line to current block
+            // Iterate through blocks
+            for (let i = 0; i < blocks.length; i++) {
+                const block = blocks[i];
+                const processedBlock = processSingleBlock(block);
+                if (processedBlock) { // Only add if not empty
+                    outputBlocks.push(processedBlock);
                 }
             }
 
-            // Process any remaining lines after the loop (for the last block)
-            if (currentBlockLines.length > 0) {
-                processBlock(currentBlockLines);
-            }
-
-            let finalHtml = outputBlocks.join('\n'); // Join all processed blocks with single newlines
+            let finalHtml = outputBlocks.join('\n');
 
             // Append <br><br> if the original last line was a plain Markdown link
             if (shouldAddBrBrAtEnd) {
@@ -330,8 +297,8 @@
 
             // --- Final Formatting and Cleanup ---
 
-            // Special handling for "&quot;" to replace with Russian quotation marks
-            finalHtml = finalHtml.replace(/&quot;/g, '&laquo;');
+            // Special handling for """ to replace with Russian quotation marks
+            finalHtml = finalHtml.replace(/"/g, '&laquo;');
 
             // Trim leading/trailing whitespace including newlines
             finalHtml = finalHtml.trim();

@@ -86,6 +86,9 @@ async function handleRequest(request) {
     processedText = processedText.replace(/<p>/g, '');
     processedText = processedText.replace(/<\/p>/g, '');
 
+    // Replace <br> and <br /> tags with newline characters
+    processedText = processedText.replace(/<\s*br\s*\/?>/g, '\n');
+
     console.log('Processed text from Typograf:', processedText.substring(0, 200)); // Log first 200 chars
 
     // Send the processed text back to the client
