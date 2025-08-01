@@ -19,7 +19,7 @@ fs.readFile(indexPath, 'utf8', (err, data) => {
     }
 
     const updatedContent = data.replace(
-        /<p id="build-date"><!-- BUILD_DATE_PLACEHOLDER --><\/p>/,
+        /<p id="build-date">.*?<\/p>/,
         `<p id="build-date">${buildDate}</p>`
     );
 
