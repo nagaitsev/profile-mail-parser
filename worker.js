@@ -75,7 +75,12 @@ async function handleRequest(request) {
     // Parse the processed text using the provided regex
     const re = /<ProcessTextResult>\s*((.|\n)*?)\s*<\/ProcessTextResult>/m;
     const match = re.exec(responseXml);
-    const processedText = match ? match[1] : text; // Use the captured group
+    let processedText = match ? match[1] : text; // Use the captured group
+
+    // Decode HTML entities - THIS IS THE CORRECTED PART
+    processedText = processedText.replace(/&gt;/g, '>');
+    processedText = processedText.replace(/&lt;/g, '<');
+    processedText = processedText.replace(/&amp;/g, '&');
 
     console.log('Processed text from Typograf:', processedText.substring(0, 200)); // Log first 200 chars
 
