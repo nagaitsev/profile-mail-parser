@@ -126,7 +126,7 @@
 <body>
     <div class="container">
         <h1>Конвертер Markdown в HTML</h1>
-        <p id="build-date">1 августа 2025 г. в 23:51:42 GMT+2</p>
+        <p id="build-date">2 августа 2025 г. в 00:20:23 GMT+2</p>
 
         <div>
             <label for="markdownInput">Введите Markdown текст здесь:</label>
@@ -218,11 +218,18 @@
                 let processedBlockHtml = blockContent;
 
                 // --- Special Handling for specific full-line patterns (these should be at the start of a block) ---
-                // 1. Special Link at start of line: [TEXT](URL) -> ###[**TEXT**](URL)
+                // 1. Special Link at start of line: [TEXT](URL) -> ###[**TEXT**](URL) or ####[**TEXT**](URL)
                 const specialLinkRegex = /^\[(.*?)\]\((.*?)\)$/;
                 if (specialLinkRegex.test(processedBlockHtml.trim())) {
                     const match = processedBlockHtml.trim().match(specialLinkRegex);
-                    return `###[**${match[1]}**](${match[2]})`;
+                    const linkText = match[1];
+                    const linkUrl = match[2];
+                    
+                    if (linkUrl.startsWith('https://www.profileschool.ru/category/')) {
+                        return `####[**${linkText}**](${linkUrl})`;
+                    } else {
+                        return `###[**${linkText}**](${linkUrl})`;
+                    }
                 }
 
                 // 2. Special Emoji Bold Header: EMOJI **TEXT** -> ### EMOJI **TEXT**
