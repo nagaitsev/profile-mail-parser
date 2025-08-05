@@ -241,8 +241,8 @@
                 } else if (trimmedLine === '') {
                     // Empty line
                     if (inList) {
-                        // If in a list, keep accumulating empty lines within the list block
-                        currentBlock.push(line);
+                        // Пропустить пустые строки внутри списка
+                        continue;
                     } else {
                         // If not in a list, an empty line signifies a block separator
                         if (currentBlock.length > 0) {
