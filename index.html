@@ -7,14 +7,14 @@
     <!-- Build Date: 1 августа 2025 г. в 23:17:07 GMT+2 -->
     <style>
         body {
-            font-family: 'Inter', Arial, sans-serif; /* Using Inter font */
+            font-family: 'Inter', Arial, sans-serif; /* Использование шрифта Inter */
             margin: 0;
             padding: 20px;
             background-color: #f4f4f4;
             color: #333;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align to top for better content flow */
+            align-items: flex-start; /* Выравнивание по верху для лучшего потока контента */
             min-height: 100vh;
             box-sizing: border-box;
         }
@@ -23,8 +23,8 @@
             max-width: 900px;
             background-color: #fff;
             padding: 20px;
-            border-radius: 12px; /* More rounded corners */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Stronger shadow */
+            border-radius: 12px; /* Более скругленные углы */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Более сильная тень */
             box-sizing: border-box;
         }
         h1, h2 {
@@ -34,9 +34,9 @@
         }
         #build-date {
             text-align: center;
-            font-size: 0.8em; /* Smaller font */
-            color: #777; /* Gray color */
-            margin-top: -15px; /* Pull it closer to the h1 */
+            font-size: 0.8em; /* Меньший размер шрифта */
+            color: #777; /* Серый цвет */
+            margin-top: -15px; /* Приблизить к h1 */
             margin-bottom: 20px;
         }
         textarea {
@@ -44,12 +44,12 @@
             padding: 12px;
             margin-bottom: 15px;
             border: 1px solid #c0c0c0;
-            border-radius: 8px; /* Rounded corners */
+            border-radius: 8px; /* Скругленные углы */
             box-sizing: border-box;
-            min-height: 250px; /* Taller textarea */
+            min-height: 250px; /* Более высокая текстовая область */
             font-family: monospace;
             font-size: 15px;
-            resize: vertical; /* Allow vertical resizing */
+            resize: vertical; /* Разрешить вертикальное изменение размера */
             transition: border-color 0.3s ease;
         }
         textarea:focus {
@@ -61,7 +61,7 @@
             color: white;
             padding: 12px 20px;
             border: none;
-            border-radius: 8px; /* Rounded corners */
+            border-radius: 8px; /* Скругленные углы */
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
@@ -78,33 +78,33 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         #htmlOutput {
-            background-color: #eef2f7; /* Lighter background for output */
+            background-color: #eef2f7; /* Более светлый фон для вывода */
             padding: 15px;
-            border-radius: 8px; /* Rounded corners */
+            border-radius: 8px; /* Скругленные углы */
             margin-top: 25px;
-            white-space: pre-wrap; /* Preserve whitespace and wrap long lines */
-            word-wrap: break-word; /* Break long words */
-            font-family: monospace; /* Revert to monospace for raw HTML display */
-            font-size: 14px; /* Slightly smaller font for raw HTML */
-            border: 1px dashed #a0a0a0; /* Dashed border */
-            min-height: 100px; /* Ensure it's visible even when empty */
+            white-space: pre-wrap; /* Сохранять пробелы и переносить длинные строки */
+            word-wrap: break-word; /* Переносить длинные слова */
+            font-family: monospace; /* Вернуть моноширинный шрифт для отображения чистого HTML */
+            font-size: 14px; /* Немного меньший шрифт для чистого HTML */
+            border: 1px dashed #a0a0a0; /* Пунктирная граница */
+            min-height: 100px; /* Убедиться, что он виден, даже когда пуст */
         }
         .controls {
             display: flex;
-            justify-content: center; /* Center buttons */
+            justify-content: center; /* Центрировать кнопки */
             align-items: center;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
-            gap: 15px; /* Space between buttons */
+            flex-wrap: wrap; /* Разрешить перенос на маленьких экранах */
+            gap: 15px; /* Пространство между кнопками */
         }
         .message {
             margin-top: 15px;
             font-weight: bold;
-            color: #28a745; /* Green for success messages */
+            color: #28a745; /* Зеленый для сообщений об успехе */
             text-align: center;
-            min-height: 20px; /* Reserve space for message */
+            min-height: 20px; /* Зарезервировать место для сообщения */
         }
 
-        /* Responsive adjustments */
+        /* Адаптивные настройки */
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -114,11 +114,11 @@
                 min-height: 180px;
             }
             button {
-                width: 100%; /* Full width buttons on small screens */
+                width: 100%; /* Кнопки на всю ширину на маленьких экранах */
                 margin-right: 0;
             }
             .controls {
-                flex-direction: column; /* Stack buttons vertically */
+                flex-direction: column; /* Расположить кнопки вертикально */
             }
         }
     </style>
@@ -154,7 +154,7 @@
     <script>
         const TYPOGRAF_WORKER_URL = 'https://profile-mail-parser.mishuta.workers.dev/'; // <-- ЗАМЕНИТЕ ЭТО НА ВАШ URL
 
-        // Function to call the Typograf worker
+        // Функция для вызова воркера Типографа
         async function typografText(text) {
             const copyMessageElement = document.getElementById('copyMessage');
             if (!TYPOGRAF_WORKER_URL.includes('your-worker-url')) {
@@ -169,7 +169,7 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error(`Network response was not ok, status: ${response.status}`);
+                        throw new Error(`Сетевой ответ был неудовлетворительным, статус: ${response.status}`);
                     }
 
                     const data = await response.json();
@@ -179,22 +179,22 @@
                     console.error('Ошибка при обращении к Типографу:', error);
                     copyMessageElement.textContent = 'Ошибка Типографа. Обработка без него.';
                     copyMessageElement.style.color = 'red';
-                    // Return original text if the service fails
+                    // Вернуть исходный текст, если сервис не работает
                     return text;
                 }
             } else {
                 copyMessageElement.textContent = 'URL Типографа не настроен. Обработка без него.';
                 copyMessageElement.style.color = 'orange';
-                return text; // Return original text if URL is not set
+                return text; // Вернуть исходный текст, если URL не установлен
             }
         }
 
-        // Function to convert Markdown to HTML
+        // Функция для конвертации Markdown в HTML
         function convertMarkdownToHtml(markdownText) {
             let outputBlocks = [];
 
-            // Determine if the very last non-empty line is a plain Markdown link
-            // This still needs to operate on original lines before block splitting
+            // Определить, является ли самая последняя непустая строка простой ссылкой Markdown
+            // Это должно работать с исходными строками до разделения на блоки
             let shouldAddBrBrAtEnd = false;
             const plainMarkdownLinkRegex = /^\[(.*?)\]\((.*?)\)$/;
             const originalLines = markdownText.split('\n');
@@ -208,66 +208,69 @@
                 }
             }
 
-            // Split input into logical blocks by double newlines
+            // Разделить ввод на логические блоки по двойным новым строкам
             const blocks = markdownText.split('\n\n');
 
-            // Helper function to process a single block of content
+            // Вспомогательная функция для обработки одного блока контента
             const processSingleBlock = (blockContent) => {
-                if (blockContent.trim() === '') return null; // Skip empty blocks
+                if (blockContent.trim() === '') return null; // Пропустить пустые блоки
 
                 let processedBlockHtml = blockContent;
 
-                // --- Special Handling for specific full-line patterns (these should be at the start of a block) ---
-                // 1. Special Link at start of line: [TEXT](URL) -> ###[**TEXT**](URL) or ####[**TEXT**](URL)
+                // --- Специальная обработка для конкретных полнострочных шаблонов (они должны быть в начале блока) ---
+                // 1. Специальная ссылка в начале строки: [TEXT](URL) -> ###[**TEXT**](URL) или ####[**TEXT**](URL)
                 const specialLinkRegex = /^\[(.*?)\]\((.*?)\)$/;
                 if (specialLinkRegex.test(processedBlockHtml.trim())) {
                     const match = processedBlockHtml.trim().match(specialLinkRegex);
                     const linkText = match[1];
                     const linkUrl = match[2];
                     
+                    // Проверить, содержит ли текст ссылки уже жирный Markdown
+                    const isTextAlreadyBold = /\*\*(.*?)\*\*/.test(linkText);
+
                     if (linkUrl.startsWith('https://www.profileschool.ru/category/')) {
-                        return `####[**${linkText}**](${linkUrl})`;
+                        return `####[${isTextAlreadyBold ? linkText : `**${linkText}**`}](${linkUrl})`;
                     } else {
-                        return `###[**${linkText}**](${linkUrl})`;
+                        return `###[${isTextAlreadyBold ? linkText : `**${linkText}**`}](${linkUrl})`;
                     }
                 }
 
-                // 2. Special Emoji Bold Header: EMOJI **TEXT** -> ### EMOJI **TEXT**
+                // 2. Специальный заголовок с эмодзи и жирным текстом: EMOJI **TEXT** -> ### EMOJI **TEXT**
                 const specialEmojiBoldHeaderRegex = /^(\S+)\s*\*\*(.*?)\*\*$/;
                 if (specialEmojiBoldHeaderRegex.test(processedBlockHtml.trim())) {
                     const match = processedBlockHtml.trim().match(specialEmojiBoldHeaderRegex);
                     return `### ${match[1]} **${match[2]}**`;
                 }
 
-                // 3. Special Plain Bold Header at start of line: **TEXT** -> ###**TEXT**
+                // 3. Специальный заголовок с жирным текстом в начале строки: **TEXT** -> ###**TEXT**
                 const specialPlainBoldHeaderRegex = /^\*\*(.*?)\*\*$/;
                 if (specialPlainBoldHeaderRegex.test(processedBlockHtml.trim())) {
                     const match = processedBlockHtml.trim().match(specialPlainBoldHeaderRegex);
                     return `###**${match[1]}**`;
                 }
 
-                // NEW: Check for ### or #### headers and leave them as is (moved up for clarity)
+                // НОВОЕ: Проверить на заголовки ### или #### и оставить их как есть (перемещено вверх для ясности)
                 if (processedBlockHtml.trim().startsWith('###') || processedBlockHtml.trim().startsWith('####')) {
                     return processedBlockHtml;
                 }
 
-                // --- Standard Markdown Conversions within the block ---
-                // Apply bold and general link conversions first, as they can be inside other elements
-                processedBlockHtml = processedBlockHtml.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<i>$1</i>'); // Convert italic
-                processedBlockHtml = processedBlockHtml.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); // Convert bold
-                processedBlockHtml = processedBlockHtml.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>'); // Convert general links
+                // --- Стандартные преобразования Markdown внутри блока ---
+                // Применить преобразования жирного текста и общих ссылок сначала, так как они могут быть внутри других элементов
+                processedBlockHtml = processedBlockHtml.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<i>$1</i>'); // Преобразовать курсив
+                processedBlockHtml = processedBlockHtml.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); // Преобразовать жирный текст
+                processedBlockHtml = processedBlockHtml.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>'); // Преобразовать общие ссылки
 
-                // --- List Type Detection and Conversion ---
-                // For lists, we need to split by single newlines within the block
+                // --- Определение типа списка и преобразование ---
+                // Для списков нам нужно разделить по одиночным новым строкам внутри блока
                 const blockLines = processedBlockHtml.split('\n');
 
-                // Unordered Lists (marked with &mdash;&nbsp;, -&nbsp;, or - )
+                // Неупорядоченные списки (отмеченные &mdash;&nbsp;, -&nbsp; или - )
                 const unorderedListLineRegex = /^(?:&mdash;&nbsp;|\-&nbsp;|\-\s)/;
                 if (blockLines.some(line => unorderedListLineRegex.test(line.trim()))) {
                     let listItemsHtml = blockLines.map(line => {
-                        let itemContent = line.replace(unorderedListLineRegex, ''); // Remove marker
-                        // Apply bold/link conversions again in case they were missed or new ones appeared
-                        itemContent = itemContent.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<i>$1</i>'); // Convert italic
+                        let itemContent = line.replace(unorderedListLineRegex, ''); // Удалить маркер
+                        // Применить преобразования жирного текста/ссылок снова, если они были пропущены или появились новые
+                        itemContent = itemContent.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<i>$1</i>'); // Преобразовать курсив
                         itemContent = itemContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                         itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
                         return `<li style="margin:0">${itemContent}</li>`;
@@ -275,13 +278,13 @@
                     return `<ul style="margin:0">${listItemsHtml.join('')}</ul>`;
                 }
 
-                // Ordered Lists (marked with 1., 2., etc.)
+                // Упорядоченные списки (отмеченные 1., 2. и т.д.)
                 const orderedListLineRegex = /^\d+\.\s/;
                 if (blockLines.some(line => orderedListLineRegex.test(line.trim()))) {
                     let listItemsHtml = blockLines.map(line => {
-                        let itemContent = line.replace(orderedListLineRegex, ''); // Remove marker
-                        // Apply bold/link conversions again
-                        itemContent = itemContent.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<i>$1</i>'); // Convert italic
+                        let itemContent = line.replace(orderedListLineRegex, ''); // Удалить маркер
+                        // Применить преобразования жирного текста/ссылок снова
+                        itemContent = itemContent.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<i>$1</i>'); // Преобразовать курсив
                         itemContent = itemContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                         itemContent = itemContent.replace(/\[(.*?)\]\((.*?)\)/g, '<a style="color:#202020" href="$2">$1</a>');
                         return `<li style="margin:0">${itemContent}</li>`;
@@ -289,37 +292,37 @@
                     return `<ol style="margin:0">${listItemsHtml.join('')}</ol>`;
                 }
 
-                // If none of the above, it's a regular paragraph
-                // Convert internal newlines to <br> for paragraphs
+                // Если ни одно из вышеперечисленных, это обычный абзац
+                // Преобразовать внутренние новые строки в <br> для абзацев
                 const paragraphContent = processedBlockHtml.replace(/\n/g, '<br>');
                 return `<div>${paragraphContent}</div>`;
             };
 
-            // Iterate through blocks
+            // Итерировать по блокам
             for (let i = 0; i < blocks.length; i++) {
                 const block = blocks[i];
                 const processedBlock = processSingleBlock(block);
-                if (processedBlock) { // Only add if not empty
+                if (processedBlock) { // Добавлять только если не пусто
                     outputBlocks.push(processedBlock);
                 }
             }
 
             let finalHtml = outputBlocks.join('\n');
 
-            // Append <br><br> if the original last line was a plain Markdown link
+            // Добавить <br><br>, если исходная последняя строка была простой ссылкой Markdown
             if (shouldAddBrBrAtEnd) {
                 finalHtml += '<br><br>';
             }
 
-            // --- Final Formatting and Cleanup ---
+            // --- Окончательное форматирование и очистка ---
 
-            // Trim leading/trailing whitespace including newlines
+            // Обрезать начальные/конечные пробелы, включая новые строки
             finalHtml = finalHtml.trim();
 
             return finalHtml;
         }
 
-        // Async function to handle conversion, now with Typograf option
+        // Асинхронная функция для обработки конвертации, теперь с опцией Типографа
         async function convertAndDisplay() {
             const markdownInput = document.getElementById('markdownInput').value;
             const useTypograf = document.getElementById('useTypograf').checked;
@@ -332,16 +335,16 @@
             try {
                 let textToProcess = markdownInput;
 
-                // If the checkbox is checked, process the text with Typograf first
+                // Если чекбокс отмечен, сначала обработать текст Типографом
                 if (useTypograf) {
                     textToProcess = await typografText(markdownInput);
                 }
 
-                // Process the (potentially typografed) text with the local converter
+                // Обработать (потенциально типографированный) текст локальным конвертером
                 const convertedHtml = convertMarkdownToHtml(textToProcess);
                 htmlOutputElement.textContent = convertedHtml;
 
-                // Update status message only if it wasn't changed by the typograf function already
+                // Обновить сообщение о статусе, только если оно еще не было изменено функцией типографа
                 if (!copyMessageElement.textContent.includes('Ошибка')) {
                     copyMessageElement.textContent = 'Готово!';
                     copyMessageElement.style.color = '#28a745';
@@ -358,22 +361,22 @@
             }
         }
 
-        // Function to copy the displayed HTML to the clipboard
+        // Функция для копирования отображаемого HTML в буфер обмена
         function copyToClipboard() {
             const htmlOutputElement = document.getElementById('htmlOutput');
-            // When copying, we still want the raw HTML string, not the rendered text
+            // При копировании нам все еще нужна необработанная HTML-строка, а не отрендеренный текст
             const textToCopy = htmlOutputElement.textContent;
 
-            // Use the modern Clipboard API if available
+            // Использовать современный Clipboard API, если доступен
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     const messageElement = document.getElementById('copyMessage');
-                    messageElement.textContent = 'HTML скопирован!'; // Success message
+                    messageElement.textContent = 'HTML скопирован!'; // Сообщение об успехе
                     messageElement.style.color = '#28a745';
-                    // Clear the message after 2 seconds
+                    // Очистить сообщение через 2 секунды
                     setTimeout(() => messageElement.textContent = '', 2000);
                 }).catch(err => {
-                    // Log error to console if copying fails
+                    // Записать ошибку в консоль, если копирование не удалось
                     console.error('Не удалось скопировать HTML: ', err);
                     const messageElement = document.getElementById('copyMessage');
                     messageElement.textContent = 'Ошибка при копировании. Пожалуйста, скопируйте вручную.';
@@ -381,17 +384,17 @@
                     setTimeout(() => { messageElement.textContent = ''; messageElement.style.color = '#28a745'; }, 3000);
                 });
             } else {
-                // Fallback method for older browsers (using document.execCommand)
+                // Резервный метод для старых браузеров (использование document.execCommand)
                 const tempTextArea = document.createElement('textarea');
                 tempTextArea.value = textToCopy;
-                // Append to body temporarily to make it selectable
+                // Временно добавить в body, чтобы сделать его выделяемым
                 document.body.appendChild(tempTextArea);
-                tempTextArea.select(); // Select the text
-                document.execCommand('copy'); // Execute copy command
-                document.body.removeChild(tempTextArea); // Remove the temporary textarea
+                tempTextArea.select(); // Выделить текст
+                document.execCommand('copy'); // Выполнить команду копирования
+                document.body.removeChild(tempTextArea); // Удалить временную текстовую область
 
                 const messageElement = document.getElementById('copyMessage');
-                messageElement.textContent = 'HTML скопирован (резервный метод)!'; // Success message for fallback
+                messageElement.textContent = 'HTML скопирован (резервный метод)!'; // Сообщение об успехе для резервного метода
                 messageElement.style.color = '#28a745';
                 setTimeout(() => messageElement.textContent = '', 2000);
             }

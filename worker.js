@@ -90,9 +90,6 @@ async function handleRequest(request) {
     // Replace <br> and <br /> tags with newline characters
     processedText = processedText.replace(/<\s*br\s*\/?>/g, '\n');
 
-    // Ensure consistent double newlines for paragraph separation
-    processedText = processedText.replace(/\n+/g, '\n\n'); // Replace one or more newlines with exactly two
-
     console.log('Processed text from Typograf:', processedText.substring(0, 200)); // Log first 200 chars
 
     // Send the processed text back to the client
