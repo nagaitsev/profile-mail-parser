@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown to HTML Converter</title>
-    <!-- Build Date: 5 августа 2025 г. в 11:11:00 GMT+5 -->
+    <!-- Build Date: 5 августа 2025 г. в 15:25:48 GMT+5 -->
     <style>
         body {
             font-family: 'Inter', Arial, sans-serif; /* Использование шрифта Inter */
@@ -126,7 +126,7 @@
 <body>
     <div class="container">
         <h1>Конвертер Markdown в HTML</h1>
-        <p id="build-date">5 августа 2025 г. в 11:11:00 GMT+5</p>
+        <p id="build-date">5 августа 2025 г. в 15:25:48 GMT+5</p>
 
         <div>
             <label for="markdownInput">Введите Markdown текст здесь:</label>
@@ -192,9 +192,19 @@
         // Функция для конвертации Markdown в HTML
         function convertMarkdownToHtml(markdownText) {
             let outputBlocks = [];
+            
+            /* 
+            Локальные правила преобразования:
+            1. Ссылки формата [Текст](URL) в начале строки → ###[**Текст**](URL)
+            2. Профильные URL (profileschool.ru) → ####[**Текст**](URL)
+            3. Строки с **жирным текстом** → заголовки ### 
+            4. Комбинации эмодзи и жирного текста → ### Эмодзи **Текст**
+            5. Списки (-/1.) → HTML списки с <li> в одну строку
+            6. Курсив *текст* → <i>текст</i>
+            7. Автоматическое добавление <br><br> после последней ссылки
+            */
 
-            // Определить, является ли самая последняя непустая строка простой ссылкой Markdown
-            // Это должно работать с исходными строками до разделения на блоки
+            // Проверка последней строки на наличие простой ссылки Markdown
             let shouldAddBrBrAtEnd = false;
             const plainMarkdownLinkRegex = /^\[(.*?)\]\((.*?)\)$/;
             const originalLines = markdownText.split('\n');
@@ -208,10 +218,56 @@
                 }
             }
 
-            // Разделить ввод на логические блоки по двойным новым строкам
-            const blocks = markdownText.split('\n\n');
+            // NEW LOGIC: Group lines into logical blocks, handling lists across newlines
+            const lines = markdownText.split('\n');
+            let logicalBlocks = [];
+            let currentBlock = [];
+            let inList = false;
+            const listMarkerRegex = /^(?:&mdash;&nbsp;|\-&nbsp;|\-\s|\d+\.\s)/; // Combined regex for all list markers
 
-            // Вспомогательная функция для обработки одного блока контента
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmedLine = line.trim();
+
+                if (listMarkerRegex.test(trimmedLine)) {
+                    // This line is a list item
+                    if (!inList && currentBlock.length > 0) {
+                        // If we were not in a list, and have accumulated non-list content, save it
+                        logicalBlocks.push(currentBlock.join('\n'));
+                        currentBlock = [];
+                    }
+                    inList = true;
+                    currentBlock.push(line);
+                } else if (trimmedLine === '') {
+                    // Empty line
+                    if (inList) {
+                        // If in a list, keep accumulating empty lines within the list block
+                        currentBlock.push(line);
+                    } else {
+                        // If not in a list, an empty line signifies a block separator
+                        if (currentBlock.length > 0) {
+                            logicalBlocks.push(currentBlock.join('\n'));
+                            currentBlock = [];
+                        }
+                    }
+                } else {
+                    // Regular text line (not a list item, not empty)
+                    if (inList) {
+                        // If we were in a list, and now encounter non-list text, end the list block
+                        logicalBlocks.push(currentBlock.join('\n'));
+                        currentBlock = [];
+                        inList = false;
+                    }
+                    currentBlock.push(line);
+                }
+            }
+
+            // Add any remaining content in currentBlock
+            if (currentBlock.length > 0) {
+                logicalBlocks.push(currentBlock.join('\n'));
+            }
+
+            // Helper function to process a single block of content (moved inside for scope)
             const processSingleBlock = (blockContent) => {
                 if (blockContent.trim() === '') return null; // Пропустить пустые блоки
 
@@ -298,9 +354,9 @@
                 return `<div>${paragraphContent}</div>`;
             };
 
-            // Итерировать по блокам
-            for (let i = 0; i < blocks.length; i++) {
-                const block = blocks[i];
+            // Теперь обрабатываем логические блоки
+            for (let i = 0; i < logicalBlocks.length; i++) {
+                const block = logicalBlocks[i];
                 const processedBlock = processSingleBlock(block);
                 if (processedBlock) { // Добавлять только если не пусто
                     outputBlocks.push(processedBlock);

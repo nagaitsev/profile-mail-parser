@@ -83,9 +83,9 @@ async function handleRequest(request) {
     processedText = processedText.replace(/&lt;/g, '<');
     processedText = processedText.replace(/&amp;/g, '&');
 
-    // Remove <p> and </p> tags
+    // Remove <p> and replace </p> with a newline
     processedText = processedText.replace(/<p>/g, '');
-    processedText = processedText.replace(/<\/p>/g, '');
+    processedText = processedText.replace(/<\/p>/g, '\n');
 
     // Replace <br> and <br /> tags with newline characters
     processedText = processedText.replace(/<\s*br\s*\/?>/g, '\n');
