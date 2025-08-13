@@ -381,21 +381,36 @@
         }
 
         // Функция обработки для нотификации
-        function notify() {
+        async function notify() {
             const input = document.getElementById('markdownInput').value;
-            let output = input.split('\n').map(line => {
-                // Обработка ссылок в начале строки
+            const useTypograf = document.getElementById('useTypograf').checked;
+            const copyMessageElement = document.getElementById('copyMessage');
+            
+            let processedText = input;
+            
+            if (useTypograf) {
+                try {
+                    copyMessageElement.textContent = 'Обращение к Типографу...';
+                    copyMessageElement.style.color = '#007bff';
+                    processedText = await typografText(input);
+                } catch (error) {
+                    console.error('Ошибка Типографа:', error);
+                    copyMessageElement.textContent = 'Ошибка Типографа. Обработка без него.';
+                    copyMessageElement.style.color = 'red';
+                }
+            }
+
+            let output = processedText.split('\n').map(line => {
                 if (/^\[.*\]\(.*\)/.test(line)) {
                     line = line.replace(/^\[(.*?)\]\((.*?)\)/, '[**$1**]($2)');
                 }
-                
-                // Обработка списков
-                line = line.replace(/^(- |— )/gm, '● ');
-                
-                return line;
+                return line.replace(/^(- |— )/gm, '● ');
             }).join('\n');
             
             document.getElementById('htmlOutput').textContent = output;
+            copyMessageElement.textContent = 'Готово! (Режим нотификации)';
+            copyMessageElement.style.color = '#28a745';
+            setTimeout(() => copyMessageElement.textContent = '', 2000);
         }
 
         // Асинхронная функция для обработки конвертации, теперь с опцией Типографа
