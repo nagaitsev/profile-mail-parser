@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown to HTML Converter</title>
-    <!-- Build Date: 13 августа 2025 г. в 12:47:58 GMT+5 -->
+    <!-- Build Date: 13 августа 2025 г. в 13:10:15 GMT+5 -->
     <style>
         body {
             font-family: 'Inter', Arial, sans-serif; /* Использование шрифта Inter */
@@ -127,7 +127,7 @@
 <body>
     <div class="container">
         <h1>Конвертер Markdown в HTML</h1>
-        <p id="build-date">13 августа 2025 г. в 12:47:58 GMT+5</p>
+        <p id="build-date">13 августа 2025 г. в 13:10:15 GMT+5</p>
 
         <div>
             <label for="markdownInput">Введите Markdown текст здесь:</label>
@@ -404,7 +404,7 @@
                 if (/^\[.*\]\(.*\)/.test(line)) {
                     line = line.replace(/^\[(.*?)\]\((.*?)\)/, '[**$1**]($2)');
                 }
-                return line.replace(/^(- |— )/gm, '● ');
+                return line.replace(/^(- |— |&mdash; )/gm, '● ');
             }).join('\n');
             
             document.getElementById('htmlOutput').textContent = output;
