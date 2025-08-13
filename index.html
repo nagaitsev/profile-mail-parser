@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown to HTML Converter</title>
-    <!-- Build Date: 8 августа 2025 г. в 16:34:41 GMT+5 -->
+    <!-- Build Date: 13 августа 2025 г. в 12:47:58 GMT+5 -->
     <style>
         body {
             font-family: 'Inter', Arial, sans-serif; /* Использование шрифта Inter */
@@ -88,6 +88,7 @@
             font-size: 14px; /* Немного меньший шрифт для чистого HTML */
             border: 1px dashed #a0a0a0; /* Пунктирная граница */
             min-height: 100px; /* Убедиться, что он виден, даже когда пуст */
+            line-height: 1.5; /* Улучшенный межстрочный интервал */
         }
         .controls {
             display: flex;
@@ -126,7 +127,7 @@
 <body>
     <div class="container">
         <h1>Конвертер Markdown в HTML</h1>
-        <p id="build-date">8 августа 2025 г. в 16:34:41 GMT+5</p>
+        <p id="build-date">13 августа 2025 г. в 12:47:58 GMT+5</p>
 
         <div>
             <label for="markdownInput">Введите Markdown текст здесь:</label>
@@ -134,8 +135,9 @@
         </div>
 
         <div class="controls">
-            <button onclick="convertAndDisplay()">Преобразовать в HTML</button>
-            <button onclick="copyToClipboard()">Копировать HTML</button>
+            <button onclick="convertAndDisplay()">Почтовая рассылка</button>
+            <button onclick="notify()">Нотификация</button>
+            <button onclick="copyToClipboard()">Копировать</button>
         </div>
 
         <div style="text-align: center; margin-top: 15px;">
@@ -376,6 +378,24 @@
             finalHtml = finalHtml.trim();
 
             return finalHtml;
+        }
+
+        // Функция обработки для нотификации
+        function notify() {
+            const input = document.getElementById('markdownInput').value;
+            let output = input.split('\n').map(line => {
+                // Обработка ссылок в начале строки
+                if (/^\[.*\]\(.*\)/.test(line)) {
+                    line = line.replace(/^\[(.*?)\]\((.*?)\)/, '[**$1**]($2)');
+                }
+                
+                // Обработка списков
+                line = line.replace(/^(- |— )/gm, '● ');
+                
+                return line;
+            }).join('\n');
+            
+            document.getElementById('htmlOutput').textContent = output;
         }
 
         // Асинхронная функция для обработки конвертации, теперь с опцией Типографа
