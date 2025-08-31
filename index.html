@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown to HTML Converter</title>
-    <!-- Build Date: 20 августа 2025 г. в 12:18:01 GMT+5 -->
+    <!-- Build Date: 31 августа 2025 г. в 11:17:52 GMT+5 -->
     <style>
         body {
             font-family: 'Inter', Arial, sans-serif; /* Использование шрифта Inter */
@@ -400,12 +400,31 @@
                 }
             }
 
-            let output = processedText.split('\n').map(line => {
-                if (/^\[.*\]\(.*\)/.test(line)) {
-                    line = line.replace(/^\[(.*?)\]\((.*?)\)/, '[**$1**]($2)');
-                }
-                return line.replace(/(?:^-|[\u2014&]mdash;)(?:\s|&nbsp;)?/g, '● ');
-            }).join('\n');
+            let output = processedText.split('\n')
+              .map(line => {
+                  if (/^\[.*\]\(.*\)/.test(line)) {
+                      line = line.replace(/^\[(.*?)\]\((.*?)\)/, '[**$1**]($2)');
+                  }
+                  return line.replace(/^(?:-|—|&mdash;)(?:\s|&nbsp;)?/, '● ');
+              })
+              .reduce((acc, line, index, arr) => {
+                  const isLast = index === arr.length - 1;
+                  const isBullet = line.startsWith('●');
+                  const isEmpty = line.trim() === '';
+
+                  if (isBullet) {
+                      acc.lines.push(line);
+                      acc.lastBulletIndex = acc.lines.length - 1;
+                  } else if (isEmpty && acc.lastBulletIndex !== null && acc.lines[acc.lastBulletIndex] === '●') {
+                      if (isLast) acc.lines.push(line);
+                  } else {
+                      acc.lines.push(line);
+                      acc.lastBulletIndex = null;
+                  }
+                  return acc;
+              }, { lines: [], lastBulletIndex: null })
+              .lines
+              .join('\n');
             
             document.getElementById('htmlOutput').textContent = output;
             copyMessageElement.textContent = 'Готово! (Режим нотификации)';
