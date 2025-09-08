@@ -413,7 +413,7 @@
                   line = line.replace(/^(\d+)\.(\s|$)/, '$1\\.$2');
                   
                   // Замена маркеров списка
-                  return line.replace(/^(?:-|—|&mdash;|–)\s*/, '● ');
+                  return line.replace(/^(?:-|—|&mdash;|–)\s*/, '●');
               })
               .reduce((acc, line, index, arr) => {
                   const isLast = index === arr.length - 1;
