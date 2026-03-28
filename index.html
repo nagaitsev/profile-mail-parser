@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown to HTML Converter</title>
-    <!-- Build Date: 8 сентября 2025 г. в 12:19 GMT+5 -->
+    <!-- Build Date: 28 марта 2026 г. в 11:58 GMT+5 -->
     <style>
         body {
             font-family: 'Inter', Arial, sans-serif; /* Использование шрифта Inter */
@@ -127,7 +127,7 @@
 <body>
     <div class="container">
         <h1>Конвертер Markdown в HTML</h1>
-        <p id="build-date">8 сентября 2025 г. в 16:15 GMT+5</p>
+        <p id="build-date">28 марта 2026 г. в 11:58 GMT+5</p>
 
         <div>
             <label for="markdownInput">Введите Markdown текст здесь:</label>
@@ -191,8 +191,22 @@
             }
         }
 
+        function normalizeAngleQuotes(text) {
+            let useOpeningQuote = true;
+
+            return text.replace(/&quot;|&quot|"/g, match => {
+                const replacement = useOpeningQuote
+                    ? (match === '"' ? '«' : '&laquo;')
+                    : (match === '"' ? '»' : '&raquo;');
+
+                useOpeningQuote = !useOpeningQuote;
+                return replacement;
+            });
+        }
+
         // Функция для конвертации Markdown в HTML
         function convertMarkdownToHtml(markdownText) {
+            markdownText = normalizeAngleQuotes(markdownText);
             let outputBlocks = [];
             
             /* 
@@ -400,13 +414,15 @@
                 }
             }
 
+            processedText = normalizeAngleQuotes(processedText);
+
             let output = processedText.split('\n')
               .map(line => {
                   // Обработка ссылок
-                  // Обработка только чистых ссылок без **
-                  const linkMatch = line.match(/^\[(.*?)\]\((.*?)\)/);
-                  if (linkMatch && !linkMatch[1].includes('**')) {
-                      line = `[**${linkMatch[1]}**](${linkMatch[2]})`;
+                  // Обработка только ссылок в начале строки без потери текста после них
+                  const linkMatch = line.match(/^(\[(.*?)\]\((.*?)\))(.*)$/);
+                  if (linkMatch && !linkMatch[2].includes('**')) {
+                      line = `[**${linkMatch[2]}**](${linkMatch[3]})${linkMatch[4]}`;
                   }
                   
                   // Обработка нумерованных списков
