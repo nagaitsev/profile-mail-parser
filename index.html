@@ -127,7 +127,7 @@
 <body>
     <div class="container">
         <h1>Конвертер Markdown в HTML</h1>
-        <p id="build-date">28 марта 2026 г. в 11:58 GMT+5</p>
+        <p id="build-date">7 мая 2026 г. в 13:28:25 GMT+5</p>
 
         <div>
             <label for="markdownInput">Введите Markdown текст здесь:</label>
@@ -427,7 +427,10 @@
                   
                   // Обработка нумерованных списков
                   line = line.replace(/^(\d+)\.(\s|$)/, '$1\\.$2');
-                  
+
+                  // Обработка курсивного выделения для нотификаций
+                  line = line.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<em>$1</em>');
+
                   // Замена маркеров списка
                   return line.replace(/^(?:-|—|&mdash;|–)\s*/, '●');
               })
