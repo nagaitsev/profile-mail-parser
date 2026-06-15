@@ -33,12 +33,12 @@ vm.runInContext(`${scriptMatch[1]}; this.normalizeAngleQuotes = normalizeAngleQu
 
 assert.strictEqual(
     context.normalizeAngleQuotes('&quot;Аудио&quot;'),
-    '«Аудио»'
+    '&laquo;Аудио&raquo;'
 );
 
 assert.strictEqual(
     context.normalizeAngleQuotes('"Аудио"'),
-    '«Аудио»'
+    '&laquo;Аудио&raquo;'
 );
 
 console.log('normalizeAngleQuotes tests passed');
