@@ -462,8 +462,10 @@
               .join('\n');
             
             document.getElementById('htmlOutput').textContent = output;
-            copyMessageElement.textContent = 'Готово! (Режим нотификации)';
-            copyMessageElement.style.color = '#28a745';
+            if (!copyMessageElement.textContent.includes('Ошибка')) {
+                copyMessageElement.textContent = 'Готово! (Режим нотификации)';
+                copyMessageElement.style.color = '#28a745';
+            }
             setTimeout(() => copyMessageElement.textContent = '', 2000);
         }
 

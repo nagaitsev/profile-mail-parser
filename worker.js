@@ -3,6 +3,15 @@ addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
 
+function escapeXml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 /**
  * Respond to the request
  * @param {Request} request
@@ -30,6 +39,7 @@ async function handleRequest(request) {
   try {
     const requestBody = await request.json();
     const text = requestBody.text;
+    const escapedText = escapeXml(text);
     console.log('Request body text:', text);
 
     if (!text) {
@@ -45,7 +55,7 @@ async function handleRequest(request) {
         'xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">' + 
             '<soap:Body>' +
                 '<ProcessText xmlns="http://typograf.artlebedev.ru/webservices/">' + 
-                    '<text>' + text + '</text>' + 
+                    '<text>' + escapedText + '</text>' + 
                 '</ProcessText>' +
             '</soap:Body>' +
         '</soap:Envelope>';
